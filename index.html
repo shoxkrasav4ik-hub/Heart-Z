@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>I Love You — Z</title>
+    <style>
+        /* Reset & Pure Black Fullscreen Canvas */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            background-color: #000000;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: #ffffff;
+        }
+
+        /* Ambient Soft Radial Glow Behind Heart */
+        #ambientGlow {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: min(88vw, 560px);
+            height: min(88vw, 560px);
+            transform: translate(-50%, -52%);
+            background: radial-gradient(circle, rgba(255, 23, 68, 0.2) 0%, rgba(255, 42, 109, 0.08) 45%, rgba(0, 0, 0, 0) 72%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0;
+            transition: opacity 2.5s ease;
+        }
+
+        #ambientGlow.active {
+            opacity: 1;
+            animation: glowBreathe 1.6s ease-in-out infinite;
+        }
+
+        @keyframes glowBreathe {
+            0%, 100% { transform: translate(-50%, -52%) scale(0.95); opacity: 0.7; }
+            18% { transform: translate(-50%, -52%) scale(1.08); opacity: 1; }
+            36% { transform: translate(-50%, -52%) scale(1.02); opacity: 0.85; }
+            50% { transform: translate(-50%, -52%) scale(1.06); opacity: 0.95; }
+        }
+
+        /* Main Animation Canvas */
+        #loveCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+            z-index: 1;
+        }
+
+        /* Center Wrapper for Clean Geometric Letter 'Z' */
+        #centerLetterWrapper {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -53%);
+            z-index: 2;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Clean 'prosto Z' SVG Container */
+        #letterZ {
+            width: clamp(4.2rem, 13vw, 7.6rem);
+            height: clamp(5.4rem, 16vw, 9.6rem);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: scale(0.45);
+            filter: blur(10px)
+                    drop-shadow(0 0 10px rgba(255, 255, 255, 0.95))
+                    drop-shadow(0 0 24px rgba(255, 42, 109, 0.9))
+                    drop-shadow(0 0 48px rgba(255, 23, 68, 0.8));
+            transition: opacity 2s cubic-bezier(0.22, 1, 0.36, 1),
+                        transform 2s cubic-bezier(0.22, 1, 0.36, 1),
+                        filter 2s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        #letterZ.revealed {
+            opacity: 1;
+            transform: scale(1);
+            filter: blur(0px)
+                    drop-shadow(0 0 10px rgba(255, 255, 255, 0.95))
+                    drop-shadow(0 0 24px rgba(255, 42, 109, 0.9))
+                    drop-shadow(0 0 48px rgba(255, 23, 68, 0.8));
+        }
+
+        #letterZ.heartbeat {
+            animation: letterPulse 1.6s ease-in-out infinite;
+        }
+
+        @keyframes letterPulse {
+            0%, 100% {
+                transform: scale(1);
+                filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.9))
+                        drop-shadow(0 0 24px rgba(255, 42, 109, 0.85))
+                        drop-shadow(0 0 48px rgba(255, 23, 68, 0.75));
+            }
+            18% {
+                transform: scale(1.09);
+                filter: drop-shadow(0 0 16px rgba(255, 255, 255, 1))
+                        drop-shadow(0 0 36px rgba(255, 64, 129, 1))
+                        drop-shadow(0 0 68px rgba(255, 23, 68, 0.95));
+            }
+            34% {
+                transform: scale(1.02);
+            }
+            48% {
+                transform: scale(1.06);
+                filter: drop-shadow(0 0 14px rgba(255, 255, 255, 0.95))
+                        drop-shadow(0 0 32px rgba(255, 64, 129, 0.95))
+                        drop-shadow(0 0 60px rgba(255, 23, 68, 0.85));
+            }
+            70% {
+                transform: scale(1);
+            }
+        }
+
+        /* Minimal Replay Button */
+        #replayBtn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 10;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            border-radius: 9999px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            color: rgba(255, 228, 235, 0.88);
+            font-size: 13px;
+            font-weight: 400;
+            letter-spacing: 0.04em;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+            transition: background-color 0.25s ease, border-color 0.25s ease, transform 0.15s ease, color 0.25s ease;
+        }
+
+        #replayBtn:hover {
+            background: rgba(255, 42, 109, 0.2);
+            border-color: rgba(255, 117, 151, 0.45);
+            color: #ffffff;
+        }
+
+        #replayBtn:active {
+            transform: scale(0.95);
+        }
+
+        #replayBtn svg {
+            width: 15px;
+            height: 15px;
+            color: #ff4d88;
+            transition: transform 0.5s ease;
+        }
+
+        #replayBtn:hover svg {
+            transform: rotate(-180deg);
+        }
+
+        /* Subtle Interaction Hint */
+        #hintText {
+            position: fixed;
+            bottom: 24px;
+            left: 24px;
+            z-index: 10;
+            pointer-events: none;
+            font-size: 11px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: rgba(255, 182, 193, 0.4);
+            transition: opacity 0.8s ease;
+        }
+    </style>
+</head>
+<body>
+    <!-- Ambient Radial Glow -->
+    <div id="ambientGlow"></div>
+
+    <!-- Main Fullscreen Canvas -->
+    <canvas id="loveCanvas"></canvas>
+
+    <!-- Centerpiece Clean 'Z' -->
+    <div id="centerLetterWrapper">
+        <div id="letterZ" aria-label="Z">
+            <svg viewBox="0 0 100 130" width="100%" height="100%" style="overflow: visible;">
+                <!-- Oddiy va silliq Z harfi -->
+                <path d="M 18 16 L 82 16 L 18 114 L 82 114"
+                      fill="none"
+                      stroke="#fff0f5"
+                      stroke-width="10.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round" />
+            </svg>
+        </div>
+    </div>
+
+    <!-- Replay Button -->
+    <button id="replayBtn" type="button" title="Animatsiyani qayta boshlash">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+        <span>Начать Заного</span>
+    </button>
+
+    <!-- Subtle Hint -->
+    <div id="hintText">Нажмите на экран ✨</div>
+
+    <script>
+        (function () {
+            function initRomanticHeart() {
+                const canvas = document.getElementById('loveCanvas');
+                if (!canvas) return;
+                const ctx = canvas.getContext('2d');
+                const letterZ = document.getElementById('letterZ');
+                const ambientGlow = document.getElementById('ambientGlow');
+                const replayBtn = document.getElementById('replayBtn');
+                const hintText = document.getElementById('hintText');
+
+                let width = window.innerWidth || document.documentElement.clientWidth;
+                let height = window.innerHeight || document.documentElement.clientHeight;
+                let dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+                let startTime = 0;
+                let letterRevealed = false;
+                let heartbeatStarted = false;
+
+                let stardust = [];
+                let heartWords = [];
+                let innerFillWords = [];
+                let interactiveParticles = [];
+
+                const palette = [
+                    '#ff1744', // Crimson
+                    '#ff2a6d', // Neon Rose
+                    '#ff4d88', // Vibrant Pink
+                    '#ff7597', // Soft Blush Pink
+                    '#ff0a54', // Deep Rose Red
+                    '#ffb3c6', // Warm Light Pink
+                    '#ffd166'  // Soft Gold Sparkle
+                ];
+
+                // Parametric heart formula
+                function getHeartPoint(t, scale) {
+                    const x = 16 * Math.pow(Math.sin(t), 3);
+                    const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+                    return {
+                        x: x * scale,
+                        y: y * scale
+                    };
+                }
+
+                // Responsive heart scale
+                function getHeartScale() {
+                    const minDim = Math.min(width, height);
+                    return (minDim * 0.40) / 16;
+                }
+
+                // Floating background sparks
+                function initStardust() {
+                    stardust = [];
+                    const count = Math.min(Math.floor((width * height) / 9000), 140);
+                    const sparkColors = ['#ff7597', '#ff1744', '#ffd166', '#ffffff'];
+                    for (let i = 0; i < count; i++) {
+                        stardust.push({
+                            x: Math.random() * width,
+                            y: Math.random() * height,
+                            radius: Math.random() * 1.7 + 0.4,
+                            vx: (Math.random() - 0.5) * 0.24,
+                            vy: -Math.random() * 0.26 - 0.05,
+                            alpha: Math.random() * 0.65 + 0.15,
+                            twinkleOffset: Math.random() * Math.PI * 2,
+                            color: sparkColors[i % sparkColors.length]
+                        });
+                    }
+                }
+
+                // Construct heart contour from "I love you" text particles
+                function buildHeartFormation() {
+                    const baseScale = getHeartScale();
+                    heartWords = [];
+                    innerFillWords = [];
+
+                    const layers = [
+                        { scaleMult: 1.00, count: 52, fontSize: Math.max(10, baseScale * 0.60), alphaMax: 0.98 },
+                        { scaleMult: 0.86, count: 40, fontSize: Math.max(9, baseScale * 0.50), alphaMax: 0.62 },
+                        { scaleMult: 1.12, count: 36, fontSize: Math.max(8.5, baseScale * 0.45), alphaMax: 0.38 }
+                    ];
+
+                    layers.forEach(function (layer, layerIndex) {
+                        for (let i = 0; i < layer.count; i++) {
+                            const t = (i / layer.count) * Math.PI * 2;
+                            const pt = getHeartPoint(t, baseScale * layer.scaleMult);
+
+                            // Tangent angle so text follows the heart curve smoothly
+                            const dt = 0.01;
+                            const ptNext = getHeartPoint(t + dt, baseScale * layer.scaleMult);
+                            let angle = Math.atan2(ptNext.y - pt.y, ptNext.x - pt.x);
+
+                            if (angle > Math.PI / 2 || angle < -Math.PI / 2) {
+                                angle += Math.PI;
+                            }
+
+                            // Symmetrical reveal from top cleft down to bottom tip
+                            const normalizedSymmetry = Math.abs(((t + Math.PI) % (Math.PI * 2)) - Math.PI) / Math.PI;
+                            const revealOrder = 1 - normalizedSymmetry;
+
+                            const scatterAngle = Math.random() * Math.PI * 2;
+                            const scatterDist = 85 + Math.random() * 190;
+
+                            heartWords.push({
+                                text: 'I love you',
+                                t: t,
+                                baseX: pt.x,
+                                baseY: pt.y,
+                                startX: pt.x + Math.cos(scatterAngle) * scatterDist,
+                                startY: pt.y + Math.sin(scatterAngle) * scatterDist,
+                                angle: angle,
+                                fontSize: layer.fontSize,
+                                color: palette[(i + layerIndex) % palette.length],
+                                alphaMax: layer.alphaMax,
+                                delay: revealOrder * 3.5 + layerIndex * 0.32 + Math.random() * 0.25,
+                                duration: 1.6,
+                                layerIndex: layerIndex
+                            });
+                        }
+                    });
+
+                    // Soft inner ring of mini "I love you" & hearts around center 'Z'
+                    const innerCount = 24;
+                    for (let i = 0; i < innerCount; i++) {
+                        const t = (i / innerCount) * Math.PI * 2 + 0.15;
+                        const rMult = 0.56 + (i % 3) * 0.08;
+                        const pt = getHeartPoint(t, baseScale * rMult);
+                        innerFillWords.push({
+                            text: i % 2 === 0 ? 'I love you' : '♥',
+                            baseX: pt.x,
+                            baseY: pt.y,
+                            fontSize: Math.max(8, baseScale * 0.40),
+                            color: palette[i % palette.length],
+                            delay: 2.0 + (i / innerCount) * 2.0,
+                            phase: Math.random() * Math.PI * 2
+                        });
+                    }
+                }
+
+                function resizeCanvas() {
+                    width = window.innerWidth || document.documentElement.clientWidth;
+                    height = window.innerHeight || document.documentElement.clientHeight;
+                    dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+                    canvas.width = width * dpr;
+                    canvas.height = height * dpr;
+                    canvas.style.width = width + 'px';
+                    canvas.style.height = height + 'px';
+                    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+                    buildHeartFormation();
+                }
+
+                // Interactive floating hearts & sparkles on pointer move / click / touch
+                function spawnBurst(x, y, isClick) {
+                    const count = isClick ? 24 : 2;
+                    for (let i = 0; i < count; i++) {
+                        const angle = Math.random() * Math.PI * 2;
+                        const speed = isClick ? (Math.random() * 3.8 + 1.2) : (Math.random() * 1.1 + 0.3);
+                        const isWord = isClick && i % 5 === 0;
+                        interactiveParticles.push({
+                            x: x,
+                            y: y,
+                            vx: Math.cos(angle) * speed,
+                            vy: Math.sin(angle) * speed - (isClick ? 0.8 : 0.3),
+                            size: isWord ? 12 : (isClick ? Math.random() * 7 + 5 : Math.random() * 3 + 1.5),
+                            life: 1.0,
+                            decay: isClick ? (Math.random() * 0.014 + 0.01) : (Math.random() * 0.025 + 0.02),
+                            color: palette[Math.floor(Math.random() * palette.length)],
+                            type: isWord ? 'text' : (isClick || Math.random() > 0.5 ? 'heart' : 'spark'),
+                            rotation: (Math.random() - 0.5) * 0.6
+                        });
+                    }
+                }
+
+                function drawMiniHeart(ctx, x, y, size, color, alpha) {
+                    ctx.save();
+                    ctx.translate(x, y);
+                    ctx.globalAlpha = Math.max(0, alpha);
+                    ctx.fillStyle = color;
+                    ctx.shadowColor = color;
+                    ctx.shadowBlur = 10;
+                    ctx.beginPath();
+                    const topCurveHeight = size * 0.3;
+                    ctx.moveTo(0, topCurveHeight);
+                    ctx.bezierCurveTo(0, 0, -size / 2, 0, -size / 2, topCurveHeight);
+                    ctx.bezierCurveTo(-size / 2, (size + topCurveHeight) / 2, 0, (size + topCurveHeight) / 1.4, 0, size);
+                    ctx.bezierCurveTo(0, (size + topCurveHeight) / 1.4, size / 2, (size + topCurveHeight) / 2, size / 2, topCurveHeight);
+                    ctx.bezierCurveTo(size / 2, 0, 0, 0, 0, topCurveHeight);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.restore();
+                }
+
+                function easeOutCubic(t) {
+                    return 1 - Math.pow(1 - t, 3);
+                }
+
+                function getHeartbeatFactor(elapsedSec) {
+                    if (elapsedSec < 4.2) return 1;
+                    const beatPhase = ((elapsedSec - 4.2) % 1.6) / 1.6;
+                    const lub = Math.exp(-Math.pow((beatPhase - 0.16) / 0.06, 2)) * 0.055;
+                    const dub = Math.exp(-Math.pow((beatPhase - 0.34) / 0.07, 2)) * 0.032;
+                    return 1 + lub + dub;
+                }
+
+                function restartAnimation() {
+                    startTime = performance.now();
+                    letterRevealed = false;
+                    heartbeatStarted = false;
+
+                    if (letterZ) letterZ.classList.remove('revealed', 'heartbeat');
+                    if (ambientGlow) ambientGlow.classList.remove('active');
+
+                    buildHeartFormation();
+                }
+
+                function animate(now) {
+                    if (!startTime) startTime = now;
+                    const elapsedSec = (now - startTime) / 1000;
+
+                    // Pure black background
+                    ctx.fillStyle = '#000000';
+                    ctx.fillRect(0, 0, width, height);
+
+                    const centerX = width / 2;
+                    const centerY = height / 2 - (height * 0.02);
+                    const pulse = getHeartbeatFactor(elapsedSec);
+
+                    // 1. Background floating sparks
+                    for (let i = 0; i < stardust.length; i++) {
+                        const p = stardust[i];
+                        p.x += p.vx;
+                        p.y += p.vy;
+
+                        if (p.y < -10) {
+                            p.y = height + 10;
+                            p.x = Math.random() * width;
+                        }
+                        if (p.x < -10) p.x = width + 10;
+                        if (p.x > width + 10) p.x = -10;
+
+                        const twinkle = 0.55 + 0.45 * Math.sin(elapsedSec * 2.5 + p.twinkleOffset);
+                        ctx.save();
+                        ctx.globalAlpha = p.alpha * twinkle;
+                        ctx.fillStyle = p.color;
+                        ctx.shadowColor = p.color;
+                        ctx.shadowBlur = 6;
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.restore();
+                    }
+
+                    // 2. Subtle neon outline behind the "I love you" heart
+                    if (elapsedSec > 1.0) {
+                        const lineProgress = Math.min((elapsedSec - 1.0) / 3.5, 1);
+                        const baseScale = getHeartScale() * pulse;
+                        ctx.save();
+                        ctx.translate(centerX, centerY);
+                        ctx.beginPath();
+                        const steps = 150;
+                        for (let s = 0; s <= steps; s++) {
+                            const t = (s / steps) * Math.PI * 2;
+                            const pt = getHeartPoint(t, baseScale);
+                            if (s === 0) ctx.moveTo(pt.x, pt.y);
+                            else ctx.lineTo(pt.x, pt.y);
+                        }
+                        ctx.closePath();
+                        ctx.strokeStyle = 'rgba(255, 23, 68, ' + (0.24 * lineProgress) + ')';
+                        ctx.lineWidth = 1.8;
+                        ctx.shadowColor = '#ff1744';
+                        ctx.shadowBlur = 22;
+                        ctx.stroke();
+                        ctx.restore();
+                    }
+
+                    // 3. Inner ambient "I love you" ring
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+
+                    for (let i = 0; i < innerFillWords.length; i++) {
+                        const item = innerFillWords[i];
+                        if (elapsedSec < item.delay) continue;
+                        const progress = Math.min((elapsedSec - item.delay) / 1.8, 1);
+                        const eased = easeOutCubic(progress);
+                        const shimmer = 0.65 + 0.35 * Math.sin(elapsedSec * 2 + item.phase);
+
+                        const x = centerX + item.baseX * pulse;
+                        const y = centerY + item.baseY * pulse;
+
+                        ctx.save();
+                        ctx.globalAlpha = eased * 0.34 * shimmer;
+                        ctx.font = 'italic 600 ' + item.fontSize + 'px Georgia, serif';
+                        ctx.fillStyle = item.color;
+                        ctx.shadowColor = item.color;
+                        ctx.shadowBlur = 8;
+                        ctx.fillText(item.text, x, y);
+                        ctx.restore();
+                    }
+
+                    // 4. Primary "I love you" heart contour words
+                    for (let i = 0; i < heartWords.length; i++) {
+                        const w = heartWords[i];
+                        if (elapsedSec < w.delay) continue;
+
+                        const rawProgress = Math.min((elapsedSec - w.delay) / w.duration, 1);
+                        const eased = easeOutCubic(rawProgress);
+
+                        const targetX = w.baseX * pulse;
+                        const targetY = w.baseY * pulse;
+                        const currentX = centerX + w.startX + (targetX - w.startX) * eased;
+                        const currentY = centerY + w.startY + (targetY - w.startY) * eased;
+
+                        const waveOffset = rawProgress >= 1 ? Math.sin(elapsedSec * 2.2 + w.t * 3) * 1.4 : 0;
+
+                        ctx.save();
+                        ctx.translate(currentX, currentY + waveOffset);
+                        ctx.rotate(w.angle);
+                        ctx.globalAlpha = eased * w.alphaMax;
+
+                        ctx.font = '600 ' + w.fontSize + 'px Georgia, serif';
+                        ctx.fillStyle = w.layerIndex === 0 ? '#ffe5ec' : w.color;
+                        ctx.shadowColor = w.color;
+                        ctx.shadowBlur = w.layerIndex === 0 ? 14 : 8;
+
+                        ctx.fillText(w.text, 0, 0);
+                        ctx.restore();
+                    }
+
+                    // 5. Reveal center letter 'Z' once heart starts taking full shape
+                    if (elapsedSec >= 3.3 && !letterRevealed) {
+                        letterRevealed = true;
+                        if (letterZ) letterZ.classList.add('revealed');
+                        if (ambientGlow) ambientGlow.classList.add('active');
+                    }
+
+                    if (elapsedSec >= 5.2 && !heartbeatStarted) {
+                        heartbeatStarted = true;
+                        if (letterZ) letterZ.classList.add('heartbeat');
+                    }
+
+                    // 6. Interactive particles
+                    for (let i = interactiveParticles.length - 1; i >= 0; i--) {
+                        const p = interactiveParticles[i];
+                        p.x += p.vx;
+                        p.y += p.vy;
+                        p.vy += 0.025;
+                        p.life -= p.decay;
+
+                        if (p.life <= 0) {
+                            interactiveParticles.splice(i, 1);
+                            continue;
+                        }
+
+                        if (p.type === 'heart') {
+                            drawMiniHeart(ctx, p.x, p.y, p.size, p.color, p.life);
+                        } else if (p.type === 'text') {
+                            ctx.save();
+                            ctx.translate(p.x, p.y);
+                            ctx.rotate(p.rotation);
+                            ctx.globalAlpha = p.life;
+                            ctx.font = 'italic 600 13px Georgia, serif';
+                            ctx.fillStyle = '#fff0f5';
+                            ctx.shadowColor = p.color;
+                            ctx.shadowBlur = 10;
+                            ctx.fillText('I love you', 0, 0);
+                            ctx.restore();
+                        } else {
+                            ctx.save();
+                            ctx.globalAlpha = p.life;
+                            ctx.fillStyle = p.color;
+                            ctx.shadowColor = p.color;
+                            ctx.shadowBlur = 8;
+                            ctx.beginPath();
+                            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                            ctx.fill();
+                            ctx.restore();
+                        }
+                    }
+
+                    requestAnimationFrame(animate);
+                }
+
+                // Event listeners
+                window.addEventListener('resize', function () {
+                    resizeCanvas();
+                    initStardust();
+                });
+
+                let lastTrailTime = 0;
+                window.addEventListener('pointermove', function (e) {
+                    const now = performance.now();
+                    if (now - lastTrailTime > 28) {
+                        spawnBurst(e.clientX, e.clientY, false);
+                        lastTrailTime = now;
+                    }
+                });
+
+                window.addEventListener('pointerdown', function (e) {
+                    if (e.target && e.target.closest && e.target.closest('#replayBtn')) return;
+                    spawnBurst(e.clientX, e.clientY, true);
+                    if (hintText) {
+                        hintText.style.opacity = '0';
+                    }
+                });
+
+                if (replayBtn) {
+                    replayBtn.addEventListener('click', function (e) {
+                        e.stopPropagation();
+                        restartAnimation();
+                    });
+                }
+
+                // Immediate initialization
+                resizeCanvas();
+                initStardust();
+                startTime = performance.now();
+                requestAnimationFrame(animate);
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initRomanticHeart);
+            } else {
+                initRomanticHeart();
+            }
+        })();
+    </script>
+</body>
+</html>
